@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>写日记</title>
+<style>
+:root {
+  --bg: #faf8f5;
+  --text: #4a4a4a;
+  --accent: #7a9a8a;
+  --border: #e8e4df;
+  --card: #fff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  -webkit-tap-highlight-color: transparent;
+}
+h1 {
+  text-align: center;
+  font-weight: 400;
+  font-size: 1.3rem;
+  letter-spacing: 0.1em;
+  padding: 1.2rem 0;
+  color: var(--accent);
+}
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: #999;
+  margin: 1rem 0 0.3rem;
+  letter-spacing: 0.05em;
+}
+input, textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+textarea {
+  min-height: 50vh;
+  line-height: 1.8;
+  resize: vertical;
+  font-size: 0.95rem;
+}
+.img-preview {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+.img-preview img {
+  height: 80px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+.upload-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.upload-btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+.upload-btn:active { background: var(--accent); color: #fff; }
+.publish-btn {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  margin: 1.5rem 0 3rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.05rem;
+  font-family: inherit;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+}
+.publish-btn:active { opacity: 0.8; }
+.publish-btn:disabled { background: #ccc; }
+.toast {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4a4a4a;
+  color: #fff;
+  padding: 0.7rem 1.5rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<h1>浮生日记</h1>
+
+<label>日期</label>
+<input type="date" id="date">
+
+<label>标题</label>
+<input type="text" id="title" placeholder="给今天起个名字...">
+
+<label>
+  配图
+  <span style="font-weight:300;color:#bbb;">（可多张）</span>
+</label>
+<div class="upload-row">
+  <label class="upload-btn" for="fileInput">📷 选择图片</label>
+  <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+  <span id="uploadHint" style="font-size:0.8rem;color:#ccc;"></span>
+</div>
+<div class="img-preview" id="preview"></div>
+
+<label>正文</label>
+<textarea id="content" placeholder="今天发生了什么呢..."></textarea>
+
+<button class="publish-btn" id="publishBtn" onclick="publish()">发 布</button>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const uploadedUrls = [];
+
+date.value = new Date().toISOString().slice(0, 10);
+
+fileInput.onchange = async () => {
+  const files = fileInput.files;
+  for (const f of files) {
+    uploadHint.textContent = '上传中...';
+    const fd = new FormData();
+    fd.append('image', f);
+    const r = await fetch('/api/upload', { method: 'POST', body: fd });
+    const d = await r.json();
+    if (d.url) {
+      uploadedUrls.push(d.url);
+      const img = document.createElement('img');
+      img.src = d.url;
+      preview.appendChild(img);
+      content.value += `\n![图片](${d.url})\n`;
+    }
+    uploadHint.textContent = '';
+  }
+  fileInput.value = '';
+};
+
+async function publish() {
+  const btn = publishBtn;
+  btn.disabled = true;
+  btn.textContent = '发布中...';
+
+  const body = {
+    title: title.value.trim() || '无题',
+    content: content.value,
+    date: date.value
+  };
+
+  try {
+    const r = await fetch('/api/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    showToast(d.message || '发布成功！');
+    btn.textContent = '已发布 ✓';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = '发 布';
+    }, 3000);
+  } catch (e) {
+    showToast('发布失败，请重试');
+    btn.disabled = false;
+    btn.textContent = '发 布';
+  }
+}
+
+function showToast(msg) {
+  const t = toast;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

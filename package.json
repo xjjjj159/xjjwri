@@ -1,0 +1,12 @@
+{
+  "name": "diary-editor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "editor": "node editor-server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "multer": "^2.1.1"
+  }
+}
