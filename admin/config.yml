@@ -3,6 +3,7 @@ backend:
   repo: xjjjj159/xjjwri
   branch: main
   base_url: https://api.decapcms.org
+  auth_endpoint: auth
 
 media_folder: "uploads"
 public_folder: "/xjjwri/uploads"
