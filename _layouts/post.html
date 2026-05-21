@@ -1,0 +1,26 @@
+---
+layout: default
+---
+
+<article class="post">
+  <header class="post__header">
+    <div class="post__date">
+      <span class="post__date-year">{{ page.date | date: "%Y" }}</span>
+      <span class="post__date-divider">/</span>
+      <span class="post__date-month">{{ page.date | date: "%m" }}</span>
+      <span class="post__date-divider">/</span>
+      <span class="post__date-day">{{ page.date | date: "%d" }}</span>
+    </div>
+    <h1 class="post__title">{{ page.title }}</h1>
+  </header>
+
+  {% if page.image %}
+  <div class="post__image-wrapper">
+    <img src="{{ page.image }}" alt="{{ page.image_alt | default: page.title }}" class="post__image">
+  </div>
+  {% endif %}
+
+  <div class="post__content">
+    {{ content }}
+  </div>
+</article>

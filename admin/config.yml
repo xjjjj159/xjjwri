@@ -1,0 +1,46 @@
+backend:
+  name: github
+  repo: xjjjj159/xjjwri
+  branch: main
+  base_url: https://api.decapcms.org
+
+media_folder: "uploads"
+public_folder: "/xjjwri/uploads"
+site_url: https://xjjjj159.github.io/xjjwri
+display_url: https://xjjjj159.github.io/xjjwri
+
+locale: "zh_Hans"
+
+collections:
+  - name: "posts"
+    label: "日记"
+    label_singular: "日记"
+    folder: "_posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - label: "标题"
+        name: "title"
+        widget: "string"
+        hint: "这篇日记的标题"
+      - label: "日期"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD HH:mm:ss"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        hint: "日记的日期"
+      - label: "封面图片"
+        name: "image"
+        widget: "image"
+        required: false
+        hint: "一篇日记可以配一张封面图（可选）"
+      - label: "图片描述"
+        name: "image_alt"
+        widget: "string"
+        required: false
+        hint: "图片的替代文字"
+      - label: "正文"
+        name: "body"
+        widget: "markdown"
+        hint: "在这里写日记内容，支持 Markdown 格式"

@@ -1,0 +1,15 @@
+---
+layout: default
+title: 浮生日记
+---
+
+<div class="diary-header">
+  <h1 class="site-title">{{ site.title }}</h1>
+  <p class="site-description">{{ site.description }}</p>
+</div>
+
+<div class="post-timeline">
+  {% for post in site.posts %}
+    {% include post-card.html %}
+  {% endfor %}
+</div>
