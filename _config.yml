@@ -23,6 +23,5 @@ defaults:
 exclude:
   - Gemfile
   - Gemfile.lock
-  - admin/config.yml
   - README.md
   - vendor
