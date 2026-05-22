@@ -1,18 +1,41 @@
 <article class="post-card">
-  <div class="post-card__date">
-    <span>{{ post.date | date: "%Y" }}</span>
-    <span class="post-card__date-divider">/</span>
-    <span>{{ post.date | date: "%m" }}</span>
-    <span class="post-card__date-divider">/</span>
-    <span>{{ post.date | date: "%d" }}</span>
+  {% assign raw = post.content %}
+  {% assign imgs = '' | split: '' %}
+  {% for i in (1..2) %}
+    {% assign parts = raw | split: '](/xjjwri/' %}
+    {% if parts.size > 1 %}
+      {% assign rest = parts[1] | split: ')' | first %}
+      {% assign img_url = '/xjjwri/' | append: rest %}
+      {% assign imgs = imgs | push: img_url %}
+      {% assign raw = raw | replace_first: img_url, '' %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="post-card__body">
+    <div class="post-card__text">
+      <div class="post-card__date">
+        <span>{{ post.date | date: "%Y" }}</span>
+        <span class="post-card__date-divider">/</span>
+        <span>{{ post.date | date: "%m" }}</span>
+        <span class="post-card__date-divider">/</span>
+        <span>{{ post.date | date: "%d" }}</span>
+      </div>
+      <h2 class="post-card__title">
+        <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
+      </h2>
+      {% assign excerpt_text = post.excerpt | strip_html | normalize_whitespace | truncate: 100 %}
+      {% if excerpt_text != "" %}
+      <p class="post-card__excerpt">{{ excerpt_text }}</p>
+      {% endif %}
+    </div>
+    {% if imgs.size > 0 %}
+    <div class="post-card__imgs">
+      {% for img in imgs %}
+      <div class="post-card__img-wrap">
+        <img src="{{ img }}" alt="" loading="lazy" decoding="async">
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
-
-  <h2 class="post-card__title">
-    <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
-  </h2>
-
-  {% assign excerpt_text = post.excerpt | strip_html | normalize_whitespace | truncate: 140 %}
-  {% if excerpt_text != "" %}
-  <div class="post-card__excerpt">{{ excerpt_text }}</div>
-  {% endif %}
 </article>
