@@ -11,10 +11,8 @@
     <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a>
   </h2>
 
-  {% assign excerpt_text = post.excerpt | strip_html | normalize_whitespace | truncate: 200 %}
+  {% assign excerpt_text = post.excerpt | strip_html | normalize_whitespace | truncate: 140 %}
   {% if excerpt_text != "" %}
-  <div class="post-card__excerpt">
-    {{ excerpt_text }}
-  </div>
+  <div class="post-card__excerpt">{{ excerpt_text }}</div>
   {% endif %}
 </article>
