@@ -186,10 +186,10 @@ textarea.short { min-height: 40vh; }
   border-radius: 20px;
   font-size: 0.9rem;
   z-index: 999;
-  opacity: 0;
+  opacity: 0; pointer-events: none;
   transition: opacity 0.3s;
 }
-.toast.show { opacity: 1; }
+.toast.show { opacity: 1; pointer-events: auto; }
 </style>
 </head>
 <body>
