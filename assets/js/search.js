@@ -3,7 +3,15 @@
   // Write link points to editor on port 3000
   var writeLink = document.getElementById('writeLink');
   if (writeLink) {
-    writeLink.href = 'http://' + window.location.hostname + ':3000';
+    var hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      writeLink.href = 'http://localhost:3000';
+    } else if (hostname.indexOf('github.io') !== -1) {
+      // Hardcoded local editor IP — update if your LAN IP changes
+      writeLink.href = 'http://10.121.227.114:3000';
+    } else {
+      writeLink.href = 'http://' + hostname + ':3000';
+    }
   }
 
   var landing = document.getElementById('landing');
