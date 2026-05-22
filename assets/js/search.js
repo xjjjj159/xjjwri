@@ -6,9 +6,13 @@
     var hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       writeLink.href = 'http://localhost:3000';
-    } else if (hostname.indexOf('github.io') !== -1) {
-      // Hardcoded local editor IP — update if your LAN IP changes
+    } else if (hostname === '10.121.227.114') {
       writeLink.href = 'http://10.121.227.114:3000';
+    } else if (hostname === '10.51.217.24') {
+      writeLink.href = 'http://10.51.217.24:3000';
+    } else if (hostname.indexOf('github.io') !== -1) {
+      // From GitHub Pages — default to phone-accessible IP
+      writeLink.href = 'http://10.51.217.24:3000';
     } else {
       writeLink.href = 'http://' + hostname + ':3000';
     }
