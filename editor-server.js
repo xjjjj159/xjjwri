@@ -5,9 +5,16 @@ const fs = require('fs');
 const path = require('path');
 
 function gitCommitAndPush(cwd, msg) {
-  exec('git add -A && git commit -m "' + msg.replace(/"/g, '\\"') + '" && git push', { cwd, timeout: 30000 }, (err, stdout, stderr) => {
-    if (err) console.error('Git error:', err.message);
-    else console.log('Git OK:', msg);
+  const cmd = 'git add -A && git commit -m "' + msg.replace(/"/g, '\\"') + '" && git push origin main';
+  console.log('Git: running...');
+  exec(cmd, { cwd, timeout: 120000 }, (err, stdout, stderr) => {
+    if (err) {
+      console.error('Git error:', err.message);
+      if (stderr) console.error('Git stderr:', stderr);
+      if (stdout) console.error('Git stdout:', stdout);
+    } else {
+      console.log('Git OK:', msg);
+    }
   });
 }
 
