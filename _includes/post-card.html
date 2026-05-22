@@ -31,7 +31,7 @@
     {% if imgs.size > 0 %}
     <div class="post-card__imgs">
       {% for img in imgs %}
-      <a href="{{ img }}" target="_blank" class="post-card__img-wrap" onclick="event.stopPropagation()">
+      <a href="{{ img }}" target="_blank" class="post-card__img-wrap">
         <img src="{{ img }}" alt="" loading="lazy" decoding="async">
       </a>
       {% endfor %}

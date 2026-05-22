@@ -284,13 +284,18 @@
     if (dx > 50) prev();
   });
 
-  // Click handler for all image types
+  // Click handler — capture phase to intercept before <a> tag navigation on mobile
   document.addEventListener('click', function (e) {
     var t = e.target;
-    if (t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper') || t.closest('.post-card__img-wrap') || t.closest('.post__gallery-item'))) {
+    // Check for image click or tap on thumbnail/link wrapper (mobile taps may miss the img)
+    var wrap = t.closest('.post-card__img-wrap, .post__gallery-item');
+    var isContentImg = t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper'));
+    var isThumb = wrap && wrap.querySelector('img');
+    if (isContentImg || isThumb) {
       e.preventDefault();
       e.stopPropagation();
-      open(t);
+      var img = isContentImg ? t : wrap.querySelector('img');
+      open(img);
     }
-  });
+  }, true); // capture phase — fires before <a> tag's own click handling
 })();
