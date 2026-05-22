@@ -286,100 +286,99 @@ body::after {
 .post-card:hover .post-card__excerpt { opacity: 0.45; }
 
 /* ========================================
-   SINGLE POST — weibo-inspired image-forward layout
+   SINGLE POST — refined arca reading layout
    ======================================== */
 
 .post { margin-bottom: 6rem; }
 .post__header {
-  margin-bottom: 3rem;
-  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.2rem;
   border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 .post__date {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: rgba(0,0,0,0.25);
+  font-size: 0.65rem;
+  color: var(--green);
   letter-spacing: 0.1em;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   display: flex;
   align-items: center;
   gap: 0.1rem;
+  opacity: 0.6;
 }
-.post__date-divider { opacity: 0.2; margin: 0 0.15rem; }
+.post__date-divider { opacity: 0.3; margin: 0 0.12rem; }
 .post__title {
   font-family: var(--font-heading);
-  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
   font-weight: 400;
-  line-height: 1.05;
+  line-height: 1.1;
   text-transform: lowercase;
-  letter-spacing: -0.01em;
-  transition: all 0.6s var(--ease-spring);
+  letter-spacing: 0;
+  transition: all 0.5s var(--ease-spring);
 }
 .post__title:hover {
-  transform: scaleY(1.08);
+  transform: scaleY(1.06);
   transform-origin: top;
-  letter-spacing: 0.01em;
+  color: var(--green);
 }
+
+/* Featured image — small, framed, centered */
 .post__image-wrapper {
-  margin: 0 -5vw 2.5rem;
+  margin: 0 auto 2rem;
+  max-width: 28rem;
+  text-align: center;
 }
 .post__image {
-  width: 100%;
   max-width: 100%;
   height: auto;
   display: block;
   cursor: zoom-in;
+  border: 1px solid rgba(0,0,0,0.06);
   transition: all 0.5s var(--ease-spring);
-  border: none;
 }
-@media (min-width: 769px) {
-  .post__image-wrapper {
-    margin: 0 0 2.5rem;
-  }
-}
-.post__image:hover { filter: brightness(0.96); }
+.post__image:hover { border-color: rgba(0,0,0,0.15); }
+
 .post__content {
-  font-size: 1.05rem;
-  line-height: 2;
-  max-width: 38rem;
+  font-size: 1rem;
+  line-height: 1.9;
+  max-width: 36rem;
 }
-.post__content p { margin-bottom: 1.2rem; }
+.post__content p { margin-bottom: 1rem; }
 .post__content img {
-  width: 100%;
-  max-width: 100%;
+  max-width: 85%;
   height: auto;
   display: block;
-  margin: 2.2rem 0;
+  margin: 1.6rem auto;
   cursor: zoom-in;
+  border: 1px solid rgba(0,0,0,0.05);
   transition: all 0.5s var(--ease-spring);
   opacity: 0;
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 .post__content img.loaded {
   opacity: 1;
   transform: scale(1);
 }
-.post__content img:hover { filter: brightness(0.95); }
-.post__content img.loaded:hover { transform: scale(1.003); }
-.post__content img:active { transform: scale(0.98); transition: transform 0.08s; }
+.post__content img:hover { border-color: rgba(0,0,0,0.15); }
+.post__content img:active { transform: scale(0.97); transition: transform 0.08s; }
 .post__content h2, .post__content h3 {
   font-family: var(--font-heading);
   font-weight: 400;
   text-transform: lowercase;
   letter-spacing: 0.03em;
-  margin: 3rem 0 0.8rem;
+  margin: 2.5rem 0 0.6rem;
   color: var(--green);
 }
-.post__content h2 { font-size: 1.4rem; }
-.post__content h3 { font-size: 1.1rem; }
+.post__content h2 { font-size: 1.2rem; }
+.post__content h3 { font-size: 1rem; }
 .post__content blockquote {
   margin: 1.5rem 0;
-  padding-left: 1.5rem;
-  border-left: 3px solid var(--green);
-  opacity: 0.5;
-  transition: opacity 0.5s var(--ease-out);
+  padding-left: 1.2rem;
+  border-left: 2px solid var(--green);
+  opacity: 0.45;
+  transition: opacity 0.4s var(--ease-out);
 }
-.post__content blockquote:hover { opacity: 0.8; }
+.post__content blockquote:hover { opacity: 0.7; }
 .post__content a {
   color: #000;
   text-decoration: underline;
@@ -389,6 +388,11 @@ body::after {
 }
 .post__content a:hover { color: var(--green); text-underline-offset: 0.35em; }
 .post__content a:active { opacity: 0.5; transition: opacity 0.05s; }
+
+@media (max-width: 480px) {
+  .post__content img { max-width: 100%; }
+  .post__image-wrapper { max-width: 100%; }
+}
 
 /* ========================================
    ABOUT
