@@ -4,5 +4,19 @@
 <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
 <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
 
+<!-- PWA -->
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日记">
+<link rel="manifest" href="{{ site.baseurl }}/manifest.json">
+<link rel="icon" type="image/svg+xml" href="{{ site.baseurl }}/icon.svg">
+
 <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/main.css">
 <script src="{{ site.baseurl }}/assets/js/search.js" defer></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('{{ site.baseurl }}/sw.js');
+  }
+</script>
