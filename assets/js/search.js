@@ -214,10 +214,8 @@
     var galleryWrap = target.closest('.post__gallery-item');
 
     if (cardWrap) {
-      // Card thumbnail in diary panel — collect all thumbnails in the panel
-      var panel = target.closest('.panel');
-      var scope = panel || document;
-      var allThumbs = scope.querySelectorAll('.post-card__img-wrap img');
+      // Card thumbnail in diary panel — collect all thumbnails across ALL panels
+      var allThumbs = document.querySelectorAll('.panel .post-card__img-wrap img');
       allThumbs.forEach(function (img, idx) {
         gallery.push(img);
         if (img === target) currentIdx = idx;
@@ -275,17 +273,15 @@
     if (e.key === 'ArrowRight') next();
   });
 
-  // Touch swipe
+  // Touch swipe — works on entire lightbox area
   var touchX = 0;
   lb.addEventListener('touchstart', function (e) {
-    if (e.target === lbImg || e.target.closest('.lightbox img')) { touchX = e.touches[0].clientX; }
+    touchX = e.touches[0].clientX;
   });
   lb.addEventListener('touchend', function (e) {
-    if (e.target === lbImg || e.target.closest('.lightbox img')) {
-      var dx = e.changedTouches[0].clientX - touchX;
-      if (dx < -50) next();
-      if (dx > 50) prev();
-    }
+    var dx = e.changedTouches[0].clientX - touchX;
+    if (dx < -50) next();
+    if (dx > 50) prev();
   });
 
   // Click handler for all image types
