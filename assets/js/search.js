@@ -214,15 +214,17 @@
     var galleryWrap = target.closest('.post__gallery-item');
 
     if (cardWrap) {
-      // Card thumbnail in diary panel — collect all thumbnails across ALL panels
-      var allThumbs = document.querySelectorAll('.panel .post-card__img-wrap img');
+      // Card thumbnail — only thumbnails within the SAME post card
+      var card = target.closest('.post-card');
+      var scope = card || document;
+      var allThumbs = scope.querySelectorAll('.post-card__img-wrap img');
       allThumbs.forEach(function (img, idx) {
         gallery.push(img);
         if (img === target) currentIdx = idx;
       });
       if (gallery.length === 0) gallery.push(target);
     } else if (galleryWrap) {
-      // Gallery thumbnail on post page — collect all gallery images
+      // Gallery thumbnail on post page — collect all gallery images in this post
       var post = target.closest('.post');
       var allItems = post.querySelectorAll('.post__gallery-item img');
       allItems.forEach(function (img, idx) {
