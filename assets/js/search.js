@@ -35,7 +35,7 @@
     if (matches.length === 0) {
       results.innerHTML = '';
       results.style.display = 'none';
-      if (empty) { empty.style.display = ''; empty.textContent = '没有找到匹配的日记'; }
+      if (empty) { empty.style.display = ''; empty.textContent = 'NO MATCH'; }
       return;
     }
     if (empty) empty.style.display = 'none';
