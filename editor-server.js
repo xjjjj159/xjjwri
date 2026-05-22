@@ -1,8 +1,15 @@
 const express = require('express');
 const multer = require('multer');
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
+function gitCommitAndPush(cwd, msg) {
+  exec('git add -A && git commit -m "' + msg.replace(/"/g, '\\"') + '" && git push', { cwd, timeout: 30000 }, (err, stdout, stderr) => {
+    if (err) console.error('Git error:', err.message);
+    else console.log('Git OK:', msg);
+  });
+}
 
 const app = express();
 const POSTS_DIR = path.join(__dirname, '_posts');
@@ -92,14 +99,8 @@ app.post('/api/about', (req, res) => {
   const fmMatch = raw.match(/^---([\s\S]*?)---/);
   const frontmatter = fmMatch ? '---' + fmMatch[1] + '---\n\n' : '';
   fs.writeFileSync(aboutPath, frontmatter + content, 'utf-8');
-  try {
-    execSync('git add about.md', { cwd: __dirname });
-    execSync('git commit -m "更新关于页面"', { cwd: __dirname });
-    execSync('git push', { cwd: __dirname, timeout: 30000 });
-    res.json({ ok: true, message: '关于页面已更新并发布！' });
-  } catch (e) {
-    res.json({ ok: true, message: '关于页面已保存，请稍后运行 push.bat 发布' });
-  }
+  gitCommitAndPush(__dirname, '更新关于页面');
+  res.json({ ok: true, message: '关于页面已保存，后台发布中...' });
 });
 
 // Upload image
@@ -115,14 +116,8 @@ app.delete('/api/delete', (req, res) => {
   const filePath = path.join(POSTS_DIR, file + '.md');
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: '文件不存在' });
   fs.unlinkSync(filePath);
-  try {
-    execSync('git add -A', { cwd: __dirname });
-    execSync(`git commit -m "删除日记: ${file}"`, { cwd: __dirname });
-    execSync('git push', { cwd: __dirname, timeout: 30000 });
-    res.json({ ok: true, message: '已删除并发布！' });
-  } catch (e) {
-    res.json({ ok: true, message: '日记已删除，请稍后运行 push.bat 发布' });
-  }
+  gitCommitAndPush(__dirname, '删除日记: ' + file);
+  res.json({ ok: true, message: '已删除，后台发布中...' });
 });
 
 // Publish post
@@ -146,16 +141,8 @@ date: ${yy}-${mm}-${dd} ${time}
 `;
 
   fs.writeFileSync(path.join(POSTS_DIR, filename), frontmatter + content, 'utf-8');
-
-  try {
-    execSync('git add -A', { cwd: __dirname });
-    execSync(`git commit -m "新日记: ${title}"`, { cwd: __dirname });
-    execSync('git push', { cwd: __dirname, timeout: 30000 });
-    res.json({ ok: true, file: filename, message: '发布成功！' });
-  } catch (e) {
-    // Git push failed but file is saved
-    res.json({ ok: true, file: filename, message: '日记已保存，请稍后运行 push.bat 发布' });
-  }
+  gitCommitAndPush(__dirname, '新日记: ' + title);
+  res.json({ ok: true, file: filename, message: '发布成功！' });
 });
 
 app.listen(3000, '0.0.0.0', () => {
