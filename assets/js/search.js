@@ -57,10 +57,15 @@
 
 // Image lightbox + lazy loading
 (function () {
-  // Add lazy loading to all content images
+  // Add lazy loading + reveal animation to all content images
   document.querySelectorAll('.post__content img, .post__image').forEach(function (img) {
     img.loading = 'lazy';
     img.decoding = 'async';
+    if (img.complete) {
+      img.classList.add('loaded');
+    } else {
+      img.addEventListener('load', function () { img.classList.add('loaded'); });
+    }
   });
 
   var lb = document.createElement('div');
