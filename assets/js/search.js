@@ -130,9 +130,10 @@
   }
 })();
 
-// Image lightbox + lazy loading
+// Image lightbox + lazy loading + post gallery extraction
 (function () {
-  document.querySelectorAll('.post__content img, .post__image').forEach(function (img) {
+  // Lazy load + reveal animation for all images
+  document.querySelectorAll('.post__content img, .post__image, .post__gallery img, .post-card__img-wrap img').forEach(function (img) {
     img.loading = 'lazy';
     img.decoding = 'async';
     if (img.complete) {
@@ -142,6 +143,31 @@
     }
   });
 
+  // === Extract images from post content into thumbnail gallery ===
+  var postContent = document.querySelector('.post__content');
+  var postGallery = document.querySelector('.post__gallery');
+  if (postContent && postGallery) {
+    var imgs = postContent.querySelectorAll('img');
+    imgs.forEach(function (img) {
+      // Remove the wrapping <p> if it only contains this image
+      var parent = img.parentElement;
+      if (parent && parent.tagName === 'P' && parent.textContent.trim() === '' && parent.children.length === 1) {
+        parent.remove();
+      } else if (parent) {
+        parent.removeChild(img);
+        if (parent.textContent.trim() === '') parent.remove();
+      }
+      // Create gallery thumbnail
+      var item = document.createElement('a');
+      item.className = 'post__gallery-item';
+      item.href = img.src;
+      item.target = '_blank';
+      item.appendChild(img.cloneNode(true));
+      postGallery.appendChild(item);
+    });
+  }
+
+  // === Lightbox ===
   var lb = document.createElement('div');
   lb.className = 'lightbox';
   lb.innerHTML =
@@ -168,7 +194,7 @@
     setTimeout(function () {
       lbImg.src = gallery[currentIdx].src;
       lbImg.style.opacity = '1';
-    }, 120);
+    }, 150);
     if (gallery.length > 1) {
       lbCounter.textContent = (currentIdx + 1) + ' / ' + gallery.length;
       lbPrev.style.display = '';
@@ -184,10 +210,11 @@
     gallery = [];
     currentIdx = 0;
 
-    // Check if this is a card thumbnail in diary panel
     var cardWrap = target.closest('.post-card__img-wrap');
+    var galleryWrap = target.closest('.post__gallery-item');
+
     if (cardWrap) {
-      // Collect all visible card thumbnails in the active panel
+      // Card thumbnail in diary panel — collect all thumbnails in the panel
       var panel = target.closest('.panel');
       var scope = panel || document;
       var allThumbs = scope.querySelectorAll('.post-card__img-wrap img');
@@ -195,11 +222,18 @@
         gallery.push(img);
         if (img === target) currentIdx = idx;
       });
-      if (gallery.length === 0) {
-        gallery.push(target);
-      }
+      if (gallery.length === 0) gallery.push(target);
+    } else if (galleryWrap) {
+      // Gallery thumbnail on post page — collect all gallery images
+      var post = target.closest('.post');
+      var allItems = post.querySelectorAll('.post__gallery-item img');
+      allItems.forEach(function (img, idx) {
+        gallery.push(img);
+        if (img === target) currentIdx = idx;
+      });
+      if (gallery.length === 0) gallery.push(target);
     } else {
-      // In post content — collect images from the same post
+      // Fallback: any content image
       var container = target.closest('.post__content, .post');
       var imgs;
       if (container) {
@@ -211,10 +245,7 @@
         gallery.push(img);
         if (img === target) currentIdx = idx;
       });
-      if (gallery.length === 0) {
-        gallery.push(target);
-        currentIdx = 0;
-      }
+      if (gallery.length === 0) { gallery.push(target); currentIdx = 0; }
     }
 
     show(currentIdx);
@@ -244,22 +275,23 @@
     if (e.key === 'ArrowRight') next();
   });
 
-  // Touch swipe support
+  // Touch swipe
   var touchX = 0;
   lb.addEventListener('touchstart', function (e) {
-    if (e.target === lbImg) { touchX = e.touches[0].clientX; }
+    if (e.target === lbImg || e.target.closest('.lightbox img')) { touchX = e.touches[0].clientX; }
   });
   lb.addEventListener('touchend', function (e) {
-    if (e.target === lbImg) {
+    if (e.target === lbImg || e.target.closest('.lightbox img')) {
       var dx = e.changedTouches[0].clientX - touchX;
       if (dx < -50) next();
       if (dx > 50) prev();
     }
   });
 
+  // Click handler for all image types
   document.addEventListener('click', function (e) {
     var t = e.target;
-    if (t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper') || t.closest('.post-card__img-wrap'))) {
+    if (t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper') || t.closest('.post-card__img-wrap') || t.closest('.post__gallery-item'))) {
       e.preventDefault();
       e.stopPropagation();
       open(t);
