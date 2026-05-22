@@ -1,3 +1,54 @@
+// Panel management
+(function () {
+  // Write link points to editor on port 3000
+  var writeLink = document.getElementById('writeLink');
+  if (writeLink) {
+    writeLink.href = 'http://' + window.location.hostname + ':3000';
+  }
+
+  var landing = document.getElementById('landing');
+  var panels = document.querySelectorAll('.panel');
+  var circles = document.querySelectorAll('.circle[data-panel]');
+
+  circles.forEach(function (c) {
+    c.addEventListener('click', function () {
+      var panelId = 'panel-' + this.dataset.panel;
+      panels.forEach(function (p) { p.classList.remove('active'); });
+      var target = document.getElementById(panelId);
+      if (target) {
+        target.classList.add('active');
+        if (panelId === 'panel-about') loadAboutContent();
+      }
+      landing.classList.add('hidden');
+      window.scrollTo(0, 0);
+    });
+  });
+
+  function loadAboutContent() {
+    var container = document.querySelector('#panel-about .about__content');
+    if (!container || container.dataset.loaded) return;
+    fetch('/xjjwri/about/')
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(html, 'text/html');
+        var content = doc.querySelector('.about__content');
+        if (content) {
+          container.innerHTML = content.innerHTML;
+          container.dataset.loaded = '1';
+        }
+      })
+      .catch(function () {});
+  }
+
+  window.closePanel = function () {
+    panels.forEach(function (p) { p.classList.remove('active'); });
+    landing.classList.remove('hidden');
+    window.scrollTo(0, 0);
+  };
+})();
+
+// Search
 (function () {
   var posts = [];
   var input = document.getElementById('searchInput');
@@ -10,7 +61,7 @@
   fetch('/xjjwri/posts.json')
     .then(function (r) { return r.json(); })
     .then(function (data) { posts = data.posts; })
-    .catch(function () { /* offline, search unavailable */ });
+    .catch(function () {});
 
   var timer;
   input.addEventListener('input', function () {
@@ -24,14 +75,12 @@
       results.innerHTML = '';
       results.style.display = 'none';
       if (empty) empty.style.display = 'none';
-      if (timeline) timeline.classList.remove('hidden');
       return;
     }
     var matches = posts.filter(function (p) {
       return p.title.toLowerCase().indexOf(q) !== -1 ||
              p.excerpt.toLowerCase().indexOf(q) !== -1;
     });
-    if (timeline) timeline.classList.add('hidden');
     if (matches.length === 0) {
       results.innerHTML = '';
       results.style.display = 'none';
@@ -57,7 +106,6 @@
 
 // Image lightbox + lazy loading
 (function () {
-  // Add lazy loading + reveal animation to all content images
   document.querySelectorAll('.post__content img, .post__image').forEach(function (img) {
     img.loading = 'lazy';
     img.decoding = 'async';

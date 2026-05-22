@@ -2,14 +2,51 @@
 layout: default
 ---
 
-<div class="search-wrap">
-  <input type="text" id="searchInput" class="search-input" placeholder="search..." autocomplete="off">
-  <ul class="search-results" id="searchResults" style="display:none"></ul>
-  <div class="search-empty" id="searchEmpty" style="display:none"></div>
+<div class="landing" id="landing">
+  <div class="circles">
+    <button class="circle" data-panel="diary" aria-label="日记">
+      <span class="circle__label">diary</span>
+    </button>
+    <button class="circle" data-panel="search" aria-label="搜索">
+      <span class="circle__label">search</span>
+    </button>
+    <a class="circle circle--link" href="#" id="writeLink" aria-label="编辑" target="_blank">
+      <span class="circle__label">write</span>
+    </a>
+    <button class="circle" data-panel="about" aria-label="关于">
+      <span class="circle__label">about</span>
+    </button>
+  </div>
 </div>
 
-<div class="post-timeline" id="postTimeline">
-  {% for post in site.posts %}
-    {% include post-card.html %}
-  {% endfor %}
+<div class="panels" id="panels">
+  <!-- Diary Panel -->
+  <div class="panel" id="panel-diary">
+    <button class="panel__back" onclick="closePanel()">&larr; back</button>
+    <div class="post-timeline">
+      {% for post in site.posts %}
+        {% include post-card.html %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Search Panel -->
+  <div class="panel" id="panel-search">
+    <button class="panel__back" onclick="closePanel()">&larr; back</button>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" class="search-input" placeholder="search..." autocomplete="off">
+      <ul class="search-results" id="searchResults" style="display:none"></ul>
+      <div class="search-empty" id="searchEmpty" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- About Panel -->
+  <div class="panel" id="panel-about">
+    <button class="panel__back" onclick="closePanel()">&larr; back</button>
+    <div class="about">
+      <div class="about__content">
+        {{ site.data.about_content | default: "..." }}
+      </div>
+    </div>
+  </div>
 </div>
