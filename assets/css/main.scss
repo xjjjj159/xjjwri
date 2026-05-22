@@ -282,12 +282,8 @@ body::after {
   letter-spacing: 0;
 }
 
-/* Full-card click overlay */
-.post-card__link {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  text-decoration: none;
+.post-card {
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -297,6 +293,11 @@ body::after {
   align-items: flex-start;
   position: relative;
   z-index: 1;
+  pointer-events: none;
+}
+.post-card__body .post-card__img-wrap,
+.post-card__body .post-card__img-wrap * {
+  pointer-events: auto;
 }
 
 .post-card__text {

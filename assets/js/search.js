@@ -41,6 +41,20 @@
       .catch(function () {});
   }
 
+  // Full-card click — navigate to post
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest('.post-card');
+    if (!card) return;
+    // Don't navigate if clicking a thumbnail image (handled by lightbox)
+    if (e.target.closest('.post-card__img-wrap')) return;
+    // Don't navigate if user is selecting text
+    if (window.getSelection().toString().length > 0) return;
+    var url = card.getAttribute('data-url');
+    if (url) {
+      window.location = url;
+    }
+  });
+
   window.closePanel = function () {
     panels.forEach(function (p) { p.classList.remove('active'); });
     landing.classList.remove('hidden');
@@ -143,27 +157,54 @@
       lbImg.src = gallery[currentIdx].src;
       lbImg.style.opacity = '1';
     }, 120);
-    lbCounter.textContent = (currentIdx + 1) + ' / ' + gallery.length;
+    if (gallery.length > 1) {
+      lbCounter.textContent = (currentIdx + 1) + ' / ' + gallery.length;
+      lbPrev.style.display = '';
+      lbNext.style.display = '';
+    } else {
+      lbCounter.textContent = '';
+      lbPrev.style.display = 'none';
+      lbNext.style.display = 'none';
+    }
   }
 
   function open(target) {
     gallery = [];
     currentIdx = 0;
-    var container = target.closest('.post__content, .post');
-    var imgs;
-    if (container) {
-      imgs = container.querySelectorAll('.post__content img, .post__image');
+
+    // Check if this is a card thumbnail in diary panel
+    var cardWrap = target.closest('.post-card__img-wrap');
+    if (cardWrap) {
+      // Collect all visible card thumbnails in the active panel
+      var panel = target.closest('.panel');
+      var scope = panel || document;
+      var allThumbs = scope.querySelectorAll('.post-card__img-wrap img');
+      allThumbs.forEach(function (img, idx) {
+        gallery.push(img);
+        if (img === target) currentIdx = idx;
+      });
+      if (gallery.length === 0) {
+        gallery.push(target);
+      }
     } else {
-      imgs = document.querySelectorAll('.post__content img, .post__image');
+      // In post content — collect images from the same post
+      var container = target.closest('.post__content, .post');
+      var imgs;
+      if (container) {
+        imgs = container.querySelectorAll('.post__content img, .post__image');
+      } else {
+        imgs = document.querySelectorAll('.post__content img, .post__image');
+      }
+      imgs.forEach(function (img, idx) {
+        gallery.push(img);
+        if (img === target) currentIdx = idx;
+      });
+      if (gallery.length === 0) {
+        gallery.push(target);
+        currentIdx = 0;
+      }
     }
-    imgs.forEach(function (img, idx) {
-      gallery.push(img);
-      if (img === target) currentIdx = idx;
-    });
-    if (gallery.length === 0) {
-      gallery.push(target);
-      currentIdx = 0;
-    }
+
     show(currentIdx);
     lb.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -208,6 +249,7 @@
     var t = e.target;
     if (t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper') || t.closest('.post-card__img-wrap'))) {
       e.preventDefault();
+      e.stopPropagation();
       open(t);
     }
   });

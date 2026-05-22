@@ -1,4 +1,4 @@
-<article class="post-card">
+<article class="post-card" data-url="{{ site.baseurl }}{{ post.url }}">
   {% assign raw = post.content %}
   {% assign imgs = '' | split: '' %}
   {% for i in (1..2) %}
@@ -10,8 +10,6 @@
       {% assign raw = raw | replace_first: img_url, '' %}
     {% endif %}
   {% endfor %}
-
-  <a href="{{ site.baseurl }}{{ post.url }}" class="post-card__link" aria-label="{{ post.title }}"></a>
 
   <div class="post-card__body">
     <div class="post-card__text">
