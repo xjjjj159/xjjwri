@@ -206,7 +206,7 @@
 
   document.addEventListener('click', function (e) {
     var t = e.target;
-    if (t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper') || t.closest('.post-card__image-wrapper'))) {
+    if (t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper') || t.closest('.post-card__img-wrap'))) {
       e.preventDefault();
       open(t);
     }

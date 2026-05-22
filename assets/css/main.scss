@@ -229,19 +229,58 @@ body::after {
 }
 
 /* ========================================
-   POST CARDS — weibo feed style
+   POST CARDS — weibo feed + EUSEXUA geometry
    ======================================== */
 
-.post-timeline { display: flex; flex-direction: column; }
+.post-timeline { display: flex; flex-direction: column; gap: 0.25rem; }
 .post-timeline.hidden { display: none; }
 
 .post-card {
-  padding: 0.9rem 0;
-  border-bottom: 1px solid rgba(0,0,0,0.04);
+  padding: 1.2rem 0 1.4rem;
+  position: relative;
   transition: all 0.4s var(--ease-spring);
 }
 .post-card:active { background: rgba(138,206,0,0.02); transition: background 0.05s; }
 .post-card:first-of-type { padding-top: 0; }
+
+/* EUSEXUA geometric divider between cards */
+.post-card:not(:last-of-type)::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent 40%,
+    rgba(0,0,0,0.06) 40%,
+    rgba(0,0,0,0.06) 42%,
+    transparent 42%,
+    transparent 58%,
+    rgba(0,0,0,0.06) 58%,
+    rgba(0,0,0,0.06) 60%,
+    transparent 60%
+  );
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+/* Geometric diamond marker in divider center */
+.post-card:not(:last-of-type)::before {
+  content: '◇';
+  display: block;
+  position: absolute;
+  bottom: -0.6rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  font-size: 7px;
+  color: rgba(0,0,0,0.08);
+  background: #fff;
+  padding: 0 0.3rem;
+  z-index: 1;
+  letter-spacing: 0;
+}
 
 .post-card__body {
   display: flex;
@@ -259,7 +298,7 @@ body::after {
   font-size: 0.6rem;
   color: var(--green);
   letter-spacing: 0.08em;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.3rem;
   display: flex;
   align-items: center;
   gap: 0.05rem;
@@ -273,7 +312,7 @@ body::after {
   line-height: 1.2;
   text-transform: lowercase;
   letter-spacing: 0.01em;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
 }
 .post-card__title a {
   color: #000;
@@ -285,12 +324,12 @@ body::after {
 .post-card__title a:active { opacity: 0.5; transition: opacity 0.05s; }
 
 .post-card__excerpt {
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: rgba(0,0,0,0.35);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(0,0,0,0.3);
   margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: color 0.3s var(--ease-out);
@@ -302,13 +341,20 @@ body::after {
   gap: 0.35rem;
   flex-shrink: 0;
   align-self: flex-start;
+  margin-top: 0.15rem;
 }
 .post-card__img-wrap {
-  width: 70px;
-  height: 70px;
+  display: block;
+  width: 72px;
+  height: 72px;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: border-color 0.3s;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
+.post-card__img-wrap:hover { border-color: rgba(0,0,0,0.18); }
 .post-card__img-wrap img {
   width: 100%;
   height: 100%;
@@ -319,14 +365,15 @@ body::after {
 .post-card:hover .post-card__img-wrap img { transform: scale(1.08); }
 
 @media (max-width: 480px) {
-  .post-card { padding: 0.75rem 0; }
+  .post-card { padding: 1rem 0 1.3rem; }
   .post-card__title { font-size: 1.05rem; }
-  .post-card__excerpt { font-size: 0.75rem; }
+  .post-card__excerpt { font-size: 0.73rem; -webkit-line-clamp: 2; }
   .post-card__img-wrap {
     width: 60px;
     height: 60px;
   }
   .post-card__body { gap: 0.6rem; }
+  .post-card:not(:last-of-type)::before { bottom: -0.55rem; font-size: 6px; }
 }
 
 /* ========================================
