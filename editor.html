@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>写日记</title>
+<title>日记编辑器</title>
 <style>
 :root {
   --bg: #faf8f5;
@@ -17,19 +17,36 @@ body {
   font-family: "Noto Serif SC", "Songti SC", serif;
   background: var(--bg);
   color: var(--text);
-  padding: 1rem;
+  padding: 0.8rem;
   max-width: 600px;
   margin: 0 auto;
   -webkit-tap-highlight-color: transparent;
 }
-h1 {
-  text-align: center;
-  font-weight: 400;
-  font-size: 1.3rem;
-  letter-spacing: 0.1em;
-  padding: 1.2rem 0;
-  color: var(--accent);
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
 }
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 0.7rem 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  color: #999;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Pages */
+.page { display: none; }
+.page.active { display: block; }
+
 label {
   display: block;
   font-size: 0.85rem;
@@ -56,6 +73,8 @@ textarea {
   resize: vertical;
   font-size: 0.95rem;
 }
+textarea.short { min-height: 40vh; }
+
 .img-preview {
   display: flex;
   gap: 0.5rem;
@@ -84,7 +103,7 @@ textarea {
   letter-spacing: 0.05em;
 }
 .upload-btn:active { background: var(--accent); color: #fff; }
-.publish-btn {
+.btn {
   display: block;
   width: 100%;
   padding: 1rem;
@@ -98,8 +117,48 @@ textarea {
   letter-spacing: 0.1em;
   cursor: pointer;
 }
-.publish-btn:active { opacity: 0.8; }
-.publish-btn:disabled { background: #ccc; }
+.btn:active { opacity: 0.8; }
+.btn:disabled { background: #ccc; }
+
+/* Search */
+.search-results {
+  list-style: none;
+  margin-top: 1rem;
+}
+.search-results li {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+}
+.search-results li:active { background: #f5f3ee; }
+.search-results .result-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.search-results .result-date {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-bottom: 0.4rem;
+}
+.search-results .result-excerpt {
+  font-size: 0.8rem;
+  color: #777;
+  line-height: 1.5;
+  max-height: 3em;
+  overflow: hidden;
+}
+.search-empty {
+  text-align: center;
+  color: #bbb;
+  padding: 2rem;
+  font-size: 0.9rem;
+}
+
+/* Toast */
 .toast {
   position: fixed;
   top: 1rem;
@@ -119,35 +178,67 @@ textarea {
 </head>
 <body>
 
-<h1>浮生日记</h1>
-
-<label>日期</label>
-<input type="date" id="date">
-
-<label>标题</label>
-<input type="text" id="title" placeholder="给今天起个名字...">
-
-<label>
-  配图
-  <span style="font-weight:300;color:#bbb;">（可多张）</span>
-</label>
-<div class="upload-row">
-  <label class="upload-btn" for="fileInput">📷 选择图片</label>
-  <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
-  <span id="uploadHint" style="font-size:0.8rem;color:#ccc;"></span>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('write')">写日记</div>
+  <div class="tab" onclick="switchTab('search')">搜索</div>
+  <div class="tab" onclick="switchTab('about')">关于</div>
 </div>
-<div class="img-preview" id="preview"></div>
 
-<label>正文</label>
-<textarea id="content" placeholder="今天发生了什么呢..."></textarea>
+<!-- Write Page -->
+<div class="page active" id="page-write">
+  <label>日期</label>
+  <input type="date" id="date">
 
-<button class="publish-btn" id="publishBtn" onclick="publish()">发 布</button>
+  <label>标题</label>
+  <input type="text" id="title" placeholder="给今天起个名字...">
+
+  <label>
+    配图
+    <span style="font-weight:300;color:#bbb;">（可多张）</span>
+  </label>
+  <div class="upload-row">
+    <label class="upload-btn" for="fileInput">📷 选择图片</label>
+    <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+    <span id="uploadHint" style="font-size:0.8rem;color:#ccc;"></span>
+  </div>
+  <div class="img-preview" id="preview"></div>
+
+  <label>正文</label>
+  <textarea id="content" placeholder="今天发生了什么呢..."></textarea>
+
+  <button class="btn" id="publishBtn" onclick="publish()">发 布</button>
+</div>
+
+<!-- Search Page -->
+<div class="page" id="page-search">
+  <input type="text" id="searchInput" placeholder="搜索日记关键词..." oninput="doSearch()" style="margin-top:0.5rem;">
+  <ul class="search-results" id="searchResults"></ul>
+  <div class="search-empty" id="searchEmpty">输入关键词开始搜索</div>
+</div>
+
+<!-- About Page -->
+<div class="page" id="page-about">
+  <label>关于页面内容</label>
+  <textarea id="aboutContent" class="short" placeholder="写一段关于自己或这个角落的话..."></textarea>
+  <button class="btn" id="aboutSaveBtn" onclick="saveAbout()">保 存</button>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const uploadedUrls = [];
+let currentTab = 'write';
 
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['write','search','about'][i] === tab);
+  });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  if (tab === 'about') loadAbout();
+}
+
+const uploadedUrls = [];
 date.value = new Date().toISOString().slice(0, 10);
 
 fileInput.onchange = async () => {
@@ -174,13 +265,11 @@ async function publish() {
   const btn = publishBtn;
   btn.disabled = true;
   btn.textContent = '发布中...';
-
   const body = {
     title: title.value.trim() || '无题',
     content: content.value,
     date: date.value
   };
-
   try {
     const r = await fetch('/api/publish', {
       method: 'POST',
@@ -199,6 +288,78 @@ async function publish() {
     btn.disabled = false;
     btn.textContent = '发 布';
   }
+}
+
+// Search
+let searchTimer;
+function doSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(async () => {
+    const q = searchInput.value.trim();
+    if (!q) {
+      searchResults.innerHTML = '';
+      searchEmpty.textContent = '输入关键词开始搜索';
+      searchEmpty.style.display = '';
+      return;
+    }
+    const r = await fetch('/api/search?q=' + encodeURIComponent(q));
+    const list = await r.json();
+    searchEmpty.style.display = 'none';
+    if (list.length === 0) {
+      searchResults.innerHTML = '';
+      searchEmpty.textContent = '没有找到匹配的日记';
+      searchEmpty.style.display = '';
+      return;
+    }
+    searchResults.innerHTML = list.map(item => `
+      <li onclick="openPost('${item.file}')">
+        <div class="result-title">${escHtml(item.title)}</div>
+        <div class="result-date">${item.date}</div>
+        <div class="result-excerpt">${escHtml(item.excerpt)}</div>
+      </li>
+    `).join('');
+  }, 300);
+}
+
+function openPost(file) {
+  window.open('/xjjwri/' + file.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/-/g, '/') + '/', '_blank');
+}
+
+// About
+async function loadAbout() {
+  const r = await fetch('/api/about');
+  const d = await r.json();
+  aboutContent.value = d.content || '';
+}
+
+async function saveAbout() {
+  const btn = aboutSaveBtn;
+  btn.disabled = true;
+  btn.textContent = '保存中...';
+  try {
+    const r = await fetch('/api/about', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: aboutContent.value })
+    });
+    const d = await r.json();
+    showToast(d.message || '已保存');
+    btn.textContent = '已保存 ✓';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = '保 存';
+    }, 3000);
+  } catch (e) {
+    showToast('保存失败');
+    btn.disabled = false;
+    btn.textContent = '保 存';
+  }
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
 }
 
 function showToast(msg) {
