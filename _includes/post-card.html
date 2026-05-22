@@ -2,9 +2,9 @@
   {% assign raw = post.content %}
   {% assign imgs = '' | split: '' %}
   {% for i in (1..2) %}
-    {% assign parts = raw | split: '](/xjjwri/' %}
+    {% assign parts = raw | split: 'src="/xjjwri/' %}
     {% if parts.size > 1 %}
-      {% assign rest = parts[1] | split: ')' | first %}
+      {% assign rest = parts[1] | split: '"' | first %}
       {% assign img_url = '/xjjwri/' | append: rest %}
       {% assign imgs = imgs | push: img_url %}
       {% assign raw = raw | replace_first: img_url, '' %}

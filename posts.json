@@ -3,11 +3,23 @@
 {
   "posts": [
   {% for post in site.posts %}
+    {% assign raw = post.content %}
+    {% assign imgs = '' | split: '' %}
+    {% for i in (1..2) %}
+      {% assign parts = raw | split: 'src="/xjjwri/' %}
+      {% if parts.size > 1 %}
+        {% assign rest = parts[1] | split: '"' | first %}
+        {% assign img_url = '/xjjwri/' | append: rest %}
+        {% assign imgs = imgs | push: img_url %}
+        {% assign raw = raw | replace_first: img_url, '' %}
+      {% endif %}
+    {% endfor %}
     {
       "title": {{ post.title | jsonify }},
       "date": "{{ post.date | date: '%Y-%m-%d' }}",
       "url": "{{ site.baseurl }}{{ post.url }}",
-      "excerpt": {{ post.excerpt | strip_html | normalize_whitespace | truncate: 200 | jsonify }}
+      "excerpt": {{ post.excerpt | strip_html | normalize_whitespace | truncate: 200 | jsonify }},
+      "images": [{% for img in imgs %}"{{ img }}"{% unless forloop.last %}, {% endunless %}{% endfor %}]
     }{% unless forloop.last %},{% endunless %}
   {% endfor %}
   ]
