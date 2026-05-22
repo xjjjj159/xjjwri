@@ -4,4 +4,4 @@ title: 关于
 permalink: /about/
 ---
 
-idontknow
+随便说说
