@@ -242,34 +242,53 @@ textarea.short { min-height: 40vh; }
 <div class="toast" id="toast"></div>
 
 <script>
-let currentTab = 'write';
+// Explicit element references (not relying on implicit globals)
+var publishBtn = document.getElementById('publishBtn');
+var titleEl = document.getElementById('title');
+var contentEl = document.getElementById('content');
+var dateEl = document.getElementById('date');
+var fileInput = document.getElementById('fileInput');
+var uploadHint = document.getElementById('uploadHint');
+var preview = document.getElementById('preview');
+var searchInput = document.getElementById('searchInput');
+var searchResults = document.getElementById('searchResults');
+var searchEmpty = document.getElementById('searchEmpty');
+var aboutContent = document.getElementById('aboutContent');
+var aboutSaveBtn = document.getElementById('aboutSaveBtn');
+var toast = document.getElementById('toast');
+
+var currentTab = 'write';
+var uploadedUrls = [];
+
+dateEl.value = new Date().toISOString().slice(0, 10);
 
 function switchTab(tab) {
   currentTab = tab;
-  document.querySelectorAll('.tab').forEach((t, i) => {
+  document.querySelectorAll('.tab').forEach(function(t, i) {
     t.classList.toggle('active', ['write','search','about'][i] === tab);
   });
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + tab).classList.add('active');
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  var page = document.getElementById('page-' + tab);
+  if (page) page.classList.add('active');
   if (tab === 'about') loadAbout();
-  if (tab === 'search') { searchInput.value = ''; doSearch(); }
+  if (tab === 'search') {
+    if (searchInput) searchInput.value = '';
+    doSearch();
+  }
 }
 
-const uploadedUrls = [];
-date.value = new Date().toISOString().slice(0, 10);
-
 async function compressImage(file) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const maxW = 1200;
-      let w = img.width, h = img.height;
+  return new Promise(function(resolve) {
+    var img = new Image();
+    img.onload = function() {
+      var maxW = 1200;
+      var w = img.width, h = img.height;
       if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-      const canvas = document.createElement('canvas');
+      var canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
+      var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      canvas.toBlob((blob) => {
+      canvas.toBlob(function(blob) {
         resolve(new File([blob], file.name, { type: 'image/jpeg' }));
       }, 'image/jpeg', 0.75);
     };
@@ -277,22 +296,23 @@ async function compressImage(file) {
   });
 }
 
-fileInput.onchange = async () => {
-  const files = fileInput.files;
-  for (const f of files) {
-    const big = f.size > 500000;
+fileInput.onchange = async function() {
+  var files = fileInput.files;
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    var big = f.size > 500000;
     uploadHint.textContent = big ? '压缩上传中...' : '上传中...';
-    const compressed = big ? await compressImage(f) : f;
-    const fd = new FormData();
+    var compressed = big ? await compressImage(f) : f;
+    var fd = new FormData();
     fd.append('image', compressed, compressed.name);
-    const r = await fetch('/api/upload', { method: 'POST', body: fd });
-    const d = await r.json();
+    var r = await fetch('/api/upload', { method: 'POST', body: fd });
+    var d = await r.json();
     if (d.url) {
       uploadedUrls.push(d.url);
-      const img = document.createElement('img');
+      var img = document.createElement('img');
       img.src = d.url;
       preview.appendChild(img);
-      content.value += `\n![图片](${d.url})\n`;
+      contentEl.value += '\n![图片](' + d.url + ')\n';
     }
     uploadHint.textContent = '';
   }
@@ -300,60 +320,71 @@ fileInput.onchange = async () => {
 };
 
 async function publish() {
-  const btn = publishBtn;
-  btn.disabled = true;
-  btn.textContent = '发布中...';
-  const body = {
-    title: title.value.trim() || '无题',
-    content: content.value,
-    date: date.value
+  if (!publishBtn) return;
+  publishBtn.disabled = true;
+  publishBtn.textContent = '发布中...';
+  var body = {
+    title: (titleEl.value || '').trim() || '无题',
+    content: contentEl.value || '',
+    date: dateEl.value || ''
   };
   try {
-    const r = await fetch('/api/publish', {
+    var r = await fetch('/api/publish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    const d = await r.json();
+    var d = await r.json();
     showToast(d.message || '发布成功！');
-    btn.textContent = '已发布 ✓';
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = '发 布';
+    publishBtn.textContent = '已发布 ✓';
+    setTimeout(function() {
+      publishBtn.disabled = false;
+      publishBtn.textContent = '发 布';
     }, 3000);
-  } catch (e) {
+  } catch (err) {
     showToast('发布失败，请重试');
-    btn.disabled = false;
-    btn.textContent = '发 布';
+    publishBtn.disabled = false;
+    publishBtn.textContent = '发 布';
   }
 }
 
 // Search
-let searchTimer;
+var searchTimer;
 function doSearch() {
+  if (!searchInput || !searchResults) return;
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(async () => {
-    const q = searchInput.value.trim();
-    const url = q ? '/api/search?q=' + encodeURIComponent(q) : '/api/search';
-    const r = await fetch(url);
-    const list = await r.json();
-    searchEmpty.style.display = 'none';
-    if (list.length === 0) {
-      searchResults.innerHTML = '';
-      searchEmpty.textContent = '没有找到匹配的日记';
-      searchEmpty.style.display = '';
-      return;
+  searchTimer = setTimeout(async function() {
+    try {
+      var q = searchInput.value.trim();
+      var url = q ? '/api/search?q=' + encodeURIComponent(q) : '/api/search';
+      var r = await fetch(url);
+      var list = await r.json();
+      if (searchEmpty) searchEmpty.style.display = 'none';
+      if (!list || list.length === 0) {
+        searchResults.innerHTML = '';
+        if (searchEmpty) {
+          searchEmpty.textContent = '没有找到匹配的日记';
+          searchEmpty.style.display = '';
+        }
+        return;
+      }
+      searchResults.innerHTML = list.map(function(item) {
+        return '<li>' +
+          '<div class="result-main" onclick="openPost(\'' + item.file + '\')">' +
+          '<div class="result-title">' + escHtml(item.title) + '</div>' +
+          '<div class="result-date">' + item.date + '</div>' +
+          '<div class="result-excerpt">' + escHtml(item.excerpt) + '</div>' +
+          '</div>' +
+          '<button class="delete-btn" onclick="deletePost(\'' + item.file + '\', event)" title="删除此日记">×</button>' +
+        '</li>';
+      }).join('');
+    } catch (err) {
+      console.error('搜索失败:', err);
+      if (searchEmpty) {
+        searchEmpty.textContent = '搜索出错，请重试';
+        searchEmpty.style.display = '';
+      }
     }
-    searchResults.innerHTML = list.map(item => `
-      <li>
-        <div class="result-main" onclick="openPost('${item.file}')">
-          <div class="result-title">${escHtml(item.title)}</div>
-          <div class="result-date">${item.date}</div>
-          <div class="result-excerpt">${escHtml(item.excerpt)}</div>
-        </div>
-        <button class="delete-btn" onclick="deletePost('${item.file}', event)" title="删除此日记">×</button>
-      </li>
-    `).join('');
   }, 300);
 }
 
@@ -361,65 +392,67 @@ function openPost(file) {
   window.open('/xjjwri/' + file.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/-/g, '/') + '/', '_blank');
 }
 
-async function deletePost(file, e) {
-  e.stopPropagation();
+async function deletePost(file, ev) {
+  ev.stopPropagation();
   if (!confirm('确定删除 «' + file + '» 吗？此操作不可撤销。')) return;
   try {
-    const r = await fetch('/api/delete', {
+    var r = await fetch('/api/delete', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ file: file })
     });
-    const d = await r.json();
+    var d = await r.json();
     showToast(d.message || '已删除');
     doSearch();
-  } catch (e) {
+  } catch (err) {
     showToast('删除失败');
   }
 }
 
 // About
 async function loadAbout() {
-  const r = await fetch('/api/about');
-  const d = await r.json();
-  aboutContent.value = d.content || '';
+  try {
+    var r = await fetch('/api/about');
+    var d = await r.json();
+    if (aboutContent) aboutContent.value = d.content || '';
+  } catch (err) {}
 }
 
 async function saveAbout() {
-  const btn = aboutSaveBtn;
-  btn.disabled = true;
-  btn.textContent = '保存中...';
+  if (!aboutSaveBtn) return;
+  aboutSaveBtn.disabled = true;
+  aboutSaveBtn.textContent = '保存中...';
   try {
-    const r = await fetch('/api/about', {
+    var r = await fetch('/api/about', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: aboutContent.value })
+      body: JSON.stringify({ content: aboutContent ? aboutContent.value : '' })
     });
-    const d = await r.json();
+    var d = await r.json();
     showToast(d.message || '已保存');
-    btn.textContent = '已保存 ✓';
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = '保 存';
+    aboutSaveBtn.textContent = '已保存 ✓';
+    setTimeout(function() {
+      aboutSaveBtn.disabled = false;
+      aboutSaveBtn.textContent = '保 存';
     }, 3000);
-  } catch (e) {
+  } catch (err) {
     showToast('保存失败');
-    btn.disabled = false;
-    btn.textContent = '保 存';
+    aboutSaveBtn.disabled = false;
+    aboutSaveBtn.textContent = '保 存';
   }
 }
 
 function escHtml(s) {
-  const d = document.createElement('div');
+  var d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
 }
 
 function showToast(msg) {
-  const t = toast;
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 2500);
 }
 </script>
 </body>
