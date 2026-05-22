@@ -27,28 +27,49 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'editor.html'));
 });
 
-// Search posts by keyword
+// Search posts by keyword (matches title or body)
 app.get('/api/search', (req, res) => {
   const q = (req.query.q || '').trim().toLowerCase();
-  if (!q) return res.json([]);
-  const files = fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.md'));
-  const results = [];
-  for (const f of files) {
-    const raw = fs.readFileSync(path.join(POSTS_DIR, f), 'utf-8');
-    const body = raw.replace(/^---[\s\S]*?---/, '').toLowerCase();
-    if (body.includes(q)) {
+  if (!q) {
+    // No query: return all posts for browsing/delete
+    const files = fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.md'));
+    const results = [];
+    for (const f of files) {
+      const raw = fs.readFileSync(path.join(POSTS_DIR, f), 'utf-8');
       const titleMatch = raw.match(/^title:\s*"?([^"\n]+)"?/m);
       const dateMatch = f.match(/^(\d{4}-\d{2}-\d{2})/);
-      const excerpt = body.substring(Math.max(0, body.indexOf(q) - 30), body.indexOf(q) + q.length + 80);
       results.push({
         file: f.replace('.md', ''),
         title: titleMatch ? titleMatch[1] : '无题',
         date: dateMatch ? dateMatch[1] : '',
-        excerpt: '...' + excerpt + '...'
+        excerpt: ''
+      });
+    }
+    results.sort((a, b) => b.file.localeCompare(a.file));
+    return res.json(results);
+  }
+  const files = fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.md'));
+  const results = [];
+  for (const f of files) {
+    const raw = fs.readFileSync(path.join(POSTS_DIR, f), 'utf-8');
+    const body = raw.replace(/^---[\s\S]*?---/, '');
+    const titleMatch = raw.match(/^title:\s*"?([^"\n]+)"?/m);
+    const title = titleMatch ? titleMatch[1] : '无题';
+    const bodyLower = body.toLowerCase();
+    const titleLower = title.toLowerCase();
+    if (bodyLower.includes(q) || titleLower.includes(q)) {
+      const dateMatch = f.match(/^(\d{4}-\d{2}-\d{2})/);
+      const idx = bodyLower.indexOf(q);
+      const start = Math.max(0, idx - 30);
+      const excerpt = idx >= 0 ? body.substring(start, idx + q.length + 80) : '';
+      results.push({
+        file: f.replace('.md', ''),
+        title: title,
+        date: dateMatch ? dateMatch[1] : '',
+        excerpt: excerpt ? '...' + excerpt + '...' : ''
       });
     }
   }
-  // Sort by filename (which includes date) descending
   results.sort((a, b) => b.file.localeCompare(a.file));
   res.json(results);
 });
