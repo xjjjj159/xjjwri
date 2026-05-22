@@ -54,3 +54,31 @@
     return d.innerHTML;
   }
 })();
+
+// Image lightbox
+(function () {
+  var lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<span class="lightbox__close">CLOSE</span>';
+  document.body.appendChild(lb);
+  var img = document.createElement('img');
+  lb.appendChild(img);
+
+  lb.addEventListener('click', function (e) {
+    if (e.target !== img) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+
+  function open(src) { img.src = src; lb.classList.add('open'); }
+  function close() { lb.classList.remove('open'); }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.tagName === 'IMG' && (t.closest('.post__content') || t.closest('.post__image-wrapper') || t.closest('.post-card__image-wrapper'))) {
+      e.preventDefault();
+      open(t.src);
+    }
+  });
+})();

@@ -87,6 +87,23 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   res.json({ url: '/xjjwri/uploads/' + req.file.filename });
 });
 
+// Delete post
+app.delete('/api/delete', (req, res) => {
+  const { file } = req.body;
+  if (!file) return res.status(400).json({ error: '未指定文件' });
+  const filePath = path.join(POSTS_DIR, file + '.md');
+  if (!fs.existsSync(filePath)) return res.status(404).json({ error: '文件不存在' });
+  fs.unlinkSync(filePath);
+  try {
+    execSync('git add -A', { cwd: __dirname });
+    execSync(`git commit -m "删除日记: ${file}"`, { cwd: __dirname });
+    execSync('git push', { cwd: __dirname, timeout: 30000 });
+    res.json({ ok: true, message: '已删除并发布！' });
+  } catch (e) {
+    res.json({ ok: true, message: '日记已删除，请稍后运行 push.bat 发布' });
+  }
+});
+
 // Publish post
 app.post('/api/publish', (req, res) => {
   const { title, content, date } = req.body;

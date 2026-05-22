@@ -131,9 +131,25 @@ textarea.short { min-height: 40vh; }
   border-radius: 4px;
   padding: 1rem;
   margin-bottom: 0.6rem;
-  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
-.search-results li:active { background: #f5f3ee; }
+.result-main { flex: 1; cursor: pointer; }
+.result-main:active { background: #f5f3ee; margin: -1rem; padding: 1rem; border-radius: 4px; }
+.delete-btn {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border: 1px solid #e0dcd7;
+  background: transparent;
+  color: #bbb;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.delete-btn:active { background: #e88; color: #fff; border-color: #e88; }
 .search-results .result-title {
   font-size: 0.95rem;
   font-weight: 500;
@@ -312,10 +328,13 @@ function doSearch() {
       return;
     }
     searchResults.innerHTML = list.map(item => `
-      <li onclick="openPost('${item.file}')">
-        <div class="result-title">${escHtml(item.title)}</div>
-        <div class="result-date">${item.date}</div>
-        <div class="result-excerpt">${escHtml(item.excerpt)}</div>
+      <li>
+        <div class="result-main" onclick="openPost('${item.file}')">
+          <div class="result-title">${escHtml(item.title)}</div>
+          <div class="result-date">${item.date}</div>
+          <div class="result-excerpt">${escHtml(item.excerpt)}</div>
+        </div>
+        <button class="delete-btn" onclick="deletePost('${item.file}', event)" title="删除此日记">×</button>
       </li>
     `).join('');
   }, 300);
@@ -323,6 +342,23 @@ function doSearch() {
 
 function openPost(file) {
   window.open('/xjjwri/' + file.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/-/g, '/') + '/', '_blank');
+}
+
+async function deletePost(file, e) {
+  e.stopPropagation();
+  if (!confirm('确定删除 «' + file + '» 吗？此操作不可撤销。')) return;
+  try {
+    const r = await fetch('/api/delete', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ file: file })
+    });
+    const d = await r.json();
+    showToast(d.message || '已删除');
+    doSearch();
+  } catch (e) {
+    showToast('删除失败');
+  }
 }
 
 // About

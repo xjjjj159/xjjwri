@@ -291,6 +291,46 @@ body {
 }
 .site-footer__inner:hover { opacity: 0.4; }
 
+/* --- Image Lightbox --- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.96);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.lightbox.open { opacity: 1; pointer-events: auto; }
+.lightbox img {
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  cursor: default;
+}
+.lightbox__close {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  opacity: 0.2;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #000;
+  transition: opacity 0.2s;
+}
+.lightbox__close:hover { opacity: 0.6; }
+.post__content img,
+.post__image,
+.post-card__image { cursor: zoom-in; }
+
 /* --- Responsive --- */
 @media (max-width: 480px) {
   body { padding: 6vw 5vw; }
