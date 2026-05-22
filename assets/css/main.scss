@@ -7,8 +7,8 @@
 
 :root {
   --green: #8ACE00;
-  --font-heading: "Arial Narrow", "HelveticaNeue-Condensed", "Arial", sans-serif;
-  --font-body: -apple-system, "PingFang SC", "Helvetica Neue", system-ui, sans-serif;
+  --font-heading: "Helvetica Neue", "Arial", "PingFang SC", sans-serif;
+  --font-body: "Noto Serif SC", "Songti SC", "STSong", "Georgia", "SimSun", serif;
   --font-mono: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
   --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -307,10 +307,10 @@ body::after {
 
 .post-card__date {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   color: var(--green);
   letter-spacing: 0.08em;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
   display: flex;
   align-items: center;
   gap: 0.05rem;
@@ -318,20 +318,20 @@ body::after {
 }
 .post-card__date-divider { opacity: 0.25; margin: 0 0.08rem; }
 .post-card__title {
-  font-size: 1.15rem;
+  font-size: 1.5rem;
   font-family: var(--font-heading);
   font-weight: 400;
   line-height: 1.2;
   text-transform: lowercase;
   letter-spacing: 0.01em;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
   color: #000;
   transition: color 0.3s var(--ease-out);
 }
 .post-card:hover .post-card__title { color: var(--green); }
 
 .post-card__excerpt {
-  font-size: 0.78rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: rgba(0,0,0,0.3);
   margin: 0;
@@ -354,8 +354,8 @@ body::after {
 }
 .post-card__img-wrap {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 94px;
+  height: 94px;
   overflow: hidden;
   border: 1px solid rgba(0,0,0,0.05);
   cursor: pointer;
@@ -375,11 +375,11 @@ body::after {
 
 @media (max-width: 480px) {
   .post-card { padding: 1rem 0 1.3rem; }
-  .post-card__title { font-size: 1.05rem; }
-  .post-card__excerpt { font-size: 0.73rem; -webkit-line-clamp: 2; }
+  .post-card__title { font-size: 1.35rem; }
+  .post-card__excerpt { font-size: 0.95rem; -webkit-line-clamp: 2; }
   .post-card__img-wrap {
-    width: 60px;
-    height: 60px;
+    width: 78px;
+    height: 78px;
   }
   .post-card__body { gap: 0.6rem; }
   .post-card:not(:last-of-type)::before { bottom: -0.55rem; font-size: 6px; }
@@ -391,16 +391,16 @@ body::after {
 
 .post { margin-bottom: 6rem; }
 .post__header {
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.2rem;
+  margin-bottom: 1.8rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 .post__date {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.85rem;
   color: var(--green);
   letter-spacing: 0.1em;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   gap: 0.1rem;
@@ -409,7 +409,7 @@ body::after {
 .post__date-divider { opacity: 0.3; margin: 0 0.12rem; }
 .post__title {
   font-family: var(--font-heading);
-  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-size: clamp(2.3rem, 6.5vw, 3.6rem);
   font-weight: 400;
   line-height: 1.1;
   text-transform: lowercase;
@@ -439,11 +439,11 @@ body::after {
 .post__image:hover { border-color: rgba(0,0,0,0.15); }
 
 .post__content {
-  font-size: 1rem;
-  line-height: 1.9;
+  font-size: 1.3rem;
+  line-height: 1.75;
   max-width: 36rem;
 }
-.post__content p { margin-bottom: 1rem; }
+.post__content p { margin-bottom: 0.6rem; }
 /* Gallery — 3-column image grid on post pages */
 .post__gallery {
   display: grid;
@@ -655,7 +655,7 @@ body::after {
 @media (max-width: 480px) {
   .panels { padding: 1.2rem 1rem 3rem; }
   .search-input { font-size: 1.5rem; }
-  .post__title { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+  .post__title { font-size: clamp(2rem, 8vw, 3rem); }
   .circles { gap: 1.2rem; padding: 1rem; }
   .lightbox__nav {
     padding: 1.8rem 0.6rem;
